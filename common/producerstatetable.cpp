@@ -220,6 +220,7 @@ void ProducerStateTable::apply_temp_view()
         if (m_tempViewState.find(key) == m_tempViewState.end())         // Key does not exist in new view
         {
             keysToDel.emplace_back(key);
+            keysToSet.emplace_back(key);
             continue;
         }
         const TableMap& newFieldValueMap = m_tempViewState[key];
@@ -319,10 +320,7 @@ void ProducerStateTable::apply_temp_view()
     RedisCommand command;
     command.formatArgv((int)args1.size(), &args1[0], NULL);
     m_pipe->push(command, REDIS_REPLY_NIL);
-    if (!m_buffered)
-    {
-        m_pipe->flush();
-    }
+    m_pipe->flush();
 
     // Clear state, temp view operation is now finished
     m_tempViewState.clear();
